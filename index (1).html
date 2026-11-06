@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لعبة مهندس الشبكة</title>
+<style>
+:root{--bg:#f4f8fb;--card:#fff;--ink:#14213d;--muted:#5b6b7b;--line:#d5e0ea;--acc:#0b8f9c;--ok:#1f9d57;--okbg:#e5f6ec;--bad:#d64545;--badbg:#fdeaea;--warn:#e59a00;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a2b;--card:#16263c;--ink:#eaf2fa;--muted:#9db0c4;--line:#2a3f58;--acc:#2cc4d1;--ok:#4cd68a;--okbg:#123626;--bad:#ff7b7b;--badbg:#3b1b1f;--warn:#f5b84a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a2b;--card:#16263c;--ink:#eaf2fa;--muted:#9db0c4;--line:#2a3f58;--acc:#2cc4d1;--ok:#4cd68a;--okbg:#123626;--bad:#ff7b7b;--badbg:#3b1b1f;--warn:#f5b84a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7}
+.wrap{max-width:720px;margin:0 auto;padding:14px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-size:1.2rem;margin:0}
+.chips span{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 12px;margin-inline-start:6px;font-weight:700}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.stage{color:var(--acc);font-weight:700;font-size:.9rem}
+.q{font-size:1.1rem;font-weight:700;margin:4px 0 12px}
+.opts{display:grid;gap:8px}
+.opts.two{grid-template-columns:1fr 1fr}
+button{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:start}
+button:hover:not(:disabled){border-color:var(--acc)}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700;text-align:center}
+button.right{border-color:var(--ok);background:var(--okbg)}
+button.wrong{border-color:var(--bad);background:var(--badbg)}
+button:disabled{cursor:default}
+.sws{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.sw{text-align:center;direction:ltr}
+.sw b{display:block;font-size:1.1rem}
+.sw small{display:block;color:var(--muted)}
+.fb{border-radius:12px;padding:10px 12px;margin-top:12px;font-weight:600}
+.fb.ok{background:var(--okbg);border:1px solid var(--ok)}
+.fb.no{background:var(--badbg);border:1px solid var(--bad)}
+.fb p{margin:4px 0 8px;font-weight:400}
+code{direction:ltr;unicode-bidi:isolate;background:var(--bg);border-radius:6px;padding:0 6px}
+svg{width:100%;height:auto;display:block}
+.lk{stroke-width:4;fill:none}.lk.ok{stroke:var(--ok)}.lk.bl{stroke:var(--bad);stroke-dasharray:8 6}.lk.cut{stroke:var(--muted);stroke-dasharray:2 8}.lk.storm{stroke:var(--bad);animation:p .5s infinite alternate}
+@keyframes p{to{opacity:.35}}
+.nd{fill:var(--card);stroke:var(--acc);stroke-width:3}.nt{fill:var(--ink);font-weight:700;font-size:15px;text-anchor:middle}.lt{fill:var(--bad);font-size:12px;text-anchor:middle}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.row button{flex:1}
+.big{font-size:2.2rem;text-align:center}
+.stat{text-align:center;font-size:1.05rem;font-weight:700;margin:6px 0}
+header{background:linear-gradient(90deg,#0b6e7a,#2f6fd6);color:#fff;border-radius:14px;padding:10px 14px}
+.chips span{color:var(--ink)}
+.opts button{font-size:1rem;padding:12px 14px}button:active:not(:disabled){transform:scale(.98)}
+.tb{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:10px}.tb i{display:block;height:100%;width:100%;transition:width .1s linear;background:var(--acc)}
+.tools button{padding:6px 10px;font-size:.9rem;text-align:center}
+.step{margin:4px 0;padding:4px 10px;border-radius:10px;background:var(--okbg);border:1px solid var(--ok)}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pop{animation:pp .4s}@keyframes pp{50%{transform:scale(1.03)}}
+.cf{position:fixed;top:-30px;font-size:24px;pointer-events:none;animation:fall 1.5s ease-in forwards;z-index:9}@keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.3}}
+ul{padding-inline-start:20px}
+.map{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-size:.82rem}.map span{opacity:.4;filter:grayscale(1);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 10px}.map span.on{opacity:1;filter:none;border-color:var(--ok)}
+input{font:inherit;width:100%;box-sizing:border-box;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin:6px 0 10px}
+.tkt{border:2px dashed var(--warn);border-radius:12px;padding:10px;margin-bottom:10px;font-weight:600}
+button.ln{direction:ltr;text-align:left;font-family:Consolas,monospace}button.ln code{background:none}
+.lb div{padding:4px 8px;border-bottom:1px solid var(--line)}.lb .me{background:var(--okbg);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1><span id="ic">🏫</span> مهندس الشبكة: أنقذ المدرسة</h1><div class="chips"><span id="nm"></span><span id="hp"></span><span id="sc">⭐ 0</span><span id="st">🔥 0</span><span id="pg"></span><span id="mu" style="cursor:pointer">🔊</span></div></header>
+<div class="bar"><i id="bar"></i></div><div class="map" id="map"></div>
+<main id="main"></main>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const PR={desirable:'PAgP',auto:'PAgP',active:'LACP',passive:'LACP',on:'ON'};
+function ec(a,b){
+ if(PR[a]!==PR[b])return[false,'الاتنين بيستخدموا بروتوكولين مختلفين، فمستحيل يتفقوا.'];
+ if(a==='on')return[true,'on مع on بيتكوّن لأنه إعداد يدوي من غير بروتوكول.'];
+ const wait=PR[a]==='PAgP'?'auto':'passive';
+ return a===wait&&b===wait?[false,'الاتنين بيستنوا الطرف التاني يبدأ، فمحدش بيعرض القناة.']:[true,'واحد على الأقل بيبدأ التفاوض، فالقناة بتتكوّن.'];
+}
+const EC=[['desirable','desirable'],['auto','auto'],['desirable','auto'],['active','passive'],['passive','passive'],['on','desirable'],['active','desirable']];
+const TF=[
+ ['الـ Redundancy في الشبكة بتتحقق عن طريق STP بس.',0,'الـ Redundancy بتيجي من كابلات وأجهزة زيادة، ودور STP إنه يمنع الـ Loops الناتجة عنها.'],
+ ['الـ Root Bridge دايماً هو السويتش اللي عنده أكتر بورتات.',0,'الـ Root هو صاحب أقل Bridge ID: الـ Priority الأول ثم الـ MAC.'],
+ ['LACP بروتوكول خاص بسيسكو.',0,'LACP معيار IEEE. اللي خاص بسيسكو هو PAgP.'],
+ ['رقم الـ channel-group لازم يتطابق على السويتشين.',0,'الرقم محلي. لازم يتطابق على بورتات نفس السويتش بس.'],
+ ['بورتات الـ EtherChannel لازم تتطابق في الـ speed والـ duplex.',1,'البورت المختلف بيتشال من القناة.'],
+ ['من غير أمر <code>ip routing</code> السويتش L3 مش هيعمل Inter-VLAN routing.',1,'الأمر ده بيشغّل الـ Layer 3 routing على السويتش.'],
+ ['الـ flag S في <code>show etherchannel summary</code> معناه Layer 3.',0,'S يعني Switchport أي Layer 2، وU يعني In Use.'],
+ ['STP بيمنع الـ Loops عن طريق إنه يقفل بعض البورتات الاحتياطية.',1,'البورتات دي بتدخل Blocking وبترجع تشتغل لو المسار الأساسي وقع.'],
+ ['البورت اللي في حالة Blocking بيبعت ويستقبل بيانات المستخدمين عادي.',0,'بيستقبل رسائل STP (BPDUs) بس ومش بيمرر بيانات عادية.'],
+ ['PAgP بيشتغل مع سويتشات أي شركة.',0,'PAgP خاص بسيسكو بس.'],
+ ['في Router on a Stick كل Subinterface بتخدم VLAN مختلف.',1,'وبتتربط بالـ VLAN بأمر <code>encapsulation dot1q</code>.'],
+ ['البورت المتوصل بالراوتر في ROAS لازم يتضبط Trunk على السويتش.',1,'عشان يعدّي فريمات أكتر من VLAN.'],
+ ['لما السويتش L3 يعمل SVI، الـ PC بيستخدم الراوتر كـ Gateway.',0,'الـ Gateway بتبقى الـ SVI على السويتش نفسه.'],
+ ['الـ Broadcast Storm بتحصل لما الفريمات بتلف في Loop.',1,'ومن غير STP الفريمات بتتضاعف لحد ما الشبكة تقف.']];
+const MC=[
+ ['في <code>show spanning-tree</code> ظهر بورت Role = Altn و Sts = BLK. يعني إيه؟',['بورت احتياطي في Blocking جاهز يشتغل لو المسار الأساسي وقع','بورت متوصل مباشرة بالـ Root','بورت بيبعت ويستقبل البيانات عادي','بورت مقفول بالكامل'],0,'Alternate دور في RSTP: مسار احتياطي بيتفعّل بسرعة.'],
+ ['السويتش ما سمعش من سويتش تاني خلال Max Age (20 ثانية). هيعمل إيه؟',['يفترض إن في مشكلة ويتصرف يصلّح الشبكة','يفصل الكهرباء','يفضل مستني للأبد','يمسح كل الـ VLANs'],0,'Max Age هو مؤقت اكتشاف الأعطال.'],
+ ['الأمر اللي بيشغّل الـ routing على سويتش Layer 3؟',['ip routing','no switchport','encapsulation dot1q','show ip route'],0,'ip routing هو اللي بيخلي السويتش يبني جدول routing زي الراوتر.'],
+ ['LACP بيسمح بكام بورت Active في نفس الوقت؟',['2','4','8','16'],2,'ممكن تضيف لحد 16 بورت لكن 8 بس Active والباقي Standby.'],
+ ['أمر بيحوّل بورت السويتش من Layer 2 لبورت Layer 3 بيقبل IP؟',['no switchport','switchport mode trunk','ip routing','vlan 10'],0,'no switchport بيخلّي البورت يتصرف زي بورت الراوتر.'],
+ ['كام ثانية الـ Hello Time الافتراضي في STP؟',['2','15','20','300'],0,'Hello = 2 ثانية، Forward Delay = 15، Max Age = 20، Aging = 300.'],
+ ['الـ Aging Time (300 ثانية) بيحدد إيه؟',['المدة اللي السويتش بيفتكر فيها MAC address من غير نشاط','المدة اللي الـ Root بيتغيّر بعدها','سرعة البورت','عدد الـ VLANs'],0,'بعد 5 دقايق من غير نشاط السويتش بينسى الـ MAC.'],
+ ['أمر الـ default route اللي بيشاور على الراوتر 192.168.100.1؟',['ip route 0.0.0.0 0.0.0.0 192.168.100.1','ip routing','interface vlan 10','channel-group 1 mode on'],0,'0.0.0.0 0.0.0.0 معناها أي شبكة مش معروفة تتبعت للراوتر.']];
+const rnd=n=>Math.random()*n|0;
+const mac=()=>[0,0,0].map(()=>rnd(65536).toString(16).toUpperCase().padStart(4,'0')).join('.');
+const PS=[4097,8193,12289,32769,36865];
+const RQ=['مين الـ Root Bridge؟','السويتشات دي اتوصلت ببعض. مين هيبقى الـ Root؟','اختار السويتش اللي هيبقى Root.'];
+function genRoot(kind){
+ const n=3+rnd(2);let p;
+ if(kind===0)p=Array(n).fill(32769);
+ else if(kind===1)p=shuf(PS).slice(0,n);
+ else{const t=rnd(3);p=[PS[t],PS[t],...shuf(PS.slice(t+1)).slice(0,n-2)]}
+ return[RQ[rnd(RQ.length)],shuf(p).map((x,k)=>['SW'+(k+1),x,mac()])];
+}
+function pickEC(){
+ const all=[];Object.keys(PR).forEach(a=>Object.keys(PR).forEach(b=>all.push([a,b])));
+ const y=shuf(all.filter(e=>ec(e[0],e[1])[0])),n=shuf(all.filter(e=>!ec(e[0],e[1])[0]));
+ return shuf([...y.slice(0,2),...n.slice(0,2),...shuf([...y.slice(2),...n.slice(2)]).slice(0,1)]);
+}
+let steps=[];
+function build(){steps=[{k:'sim',h:'المرحلة 1 · جرّب بنفسك'}];
+steps.push({k:'blk',h:'المرحلة 1ب · أقفل اللينك وشوف الفريم'},{k:'blk',h:'المرحلة 1ب · أقفل اللينك وشوف الفريم'});
+shuf([0,1,2]).map(genRoot).forEach(r=>steps.push({k:'root',h:'المرحلة 2 · انتخاب الـ Root',r}));
+pickEC().forEach(e=>steps.push({k:'ec',h:'المرحلة 3 · EtherChannel',e}));
+shuf(TF).slice(0,6).forEach(t=>steps.push({k:'tf',h:'المرحلة 4 · صح أم غلط',t}));
+shuf(MC).slice(0,4).forEach(m=>steps.push({k:'mc',h:'المرحلة 5 · فك المخرجات',m}));
+shuf(OR).slice(0,2).forEach(o=>steps.push({k:'or',h:'المرحلة 6 · رتّب الأوامر',o}));
+shuf(TK).slice(0,2).forEach(t=>steps.push({k:'tk',h:'المرحلة 7 · اكتشف العطل',t}));
+steps.push({k:'blk',boss:1,h:'👹 المرحلة النهائية · Boss: العاصفة'});
+}
+let i=0,score=0,streak=0,right=0,total=0,hearts=3,shield=0,pu={},qt,tl=0,TL=1,ans=false,mute=false,cur,over=false,ac,timer;
+const beep=(f,d,t='sine',v=.15)=>{if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}};
+const sfx={ok:()=>{beep(660,.12);setTimeout(()=>beep(880,.18),110)},no:()=>beep(150,.35,'sawtooth',.12),tick:()=>beep(520,.08),win:()=>[523,659,784,1047].forEach((f,k)=>setTimeout(()=>beep(f,.2),k*120))};
+function burst(){for(let k=0;k<16;k++){const f=el('span','cf',['🎉','⭐','✨','💡'][k%4]);f.style.left=rnd(96)+'%';f.style.animationDelay=rnd(30)/100+'s';document.body.append(f);setTimeout(()=>f.remove(),1800)}}
+const OR=[
+ {t:'رتّب خطوات إنشاء EtherChannel بـ PAgP',s:['configure terminal','interface range e0/0-2','channel-group 1 mode desirable','show ip interface brief'],w:'ندخل global config، نختار البورتات مرة واحدة بـ range، نعمل channel-group، وبعدها نتأكد.'},
+ {t:'رتّب إعداد Router on a Stick على الراوتر',s:['interface g1/0 + no shutdown','interface g1/0.10','encapsulation dot1q 10','ip address 192.168.1.1 255.255.255.0'],w:'البورت الفيزيكي الأول من غير IP، ثم Subinterface لكل VLAN، نربطها بـ dot1q ونديها IP.'},
+ {t:'رتّب إعداد Inter-VLAN routing على سويتش L3',s:['ip routing','interface vlan 10','ip address 192.168.1.1 255.255.255.0','no shut'],w:'من غير ip routing مفيش routing. بعدها SVI لكل VLAN بـ IP وتشغيل.'}];
+function hud(){const h=Math.max(hearts,0);$('#nm').textContent=pname?'👤 '+pname:'';$('#hp').textContent='❤️'.repeat(h)+'🖤'.repeat(3-h);$('#sc').textContent='⭐ '+score;$('#st').textContent='🔥 '+streak;$('#pg').textContent=steps.length?Math.min(i+1,steps.length)+'/'+steps.length:'';$('#bar').style.width=(steps.length?i/steps.length*100:0)+'%';$('#ic').textContent=['💥','🏚️','🏫🔧','🏫'][h];
+ const last=[];steps.forEach((x,k)=>last[gOf(x)]=k);$('#map').innerHTML=GN.map((n,g)=>'<span class="'+(last[g]!==undefined&&i>last[g]?'on':'')+'">'+n+'</span>').join('')}
+function draw(){
+ clearInterval(timer);clearInterval(qt);ans=false;hud();const m=$('#main');m.innerHTML='';
+ if(i>=steps.length||over)return end(m);
+ const s=steps[i],c=el('div','card');c.append(el('div','stage',s.h));m.append(c);
+ ({sim,root,ec:ecq,tf,mc,or:ord,blk,tk})[s.k](c,s);
+ if(s.k!=='sim')play(c,s.k==='or'?45:s.k==='blk'?(s.boss?40:90):s.k==='tk'?30:20);
+}
+function play(c,sec){
+ TL=tl=sec;const tb=el('div','tb','<i></i>'),bar=tb.firstChild;c.prepend(tb);
+ qt=setInterval(()=>{tl-=.1;bar.style.width=Math.max(0,tl/TL*100)+'%';bar.style.background=tl<5?'var(--bad)':'var(--acc)';if(tl<=0)timeUp()},100);
+ const tools=el('div','row tools');
+ [['t','⏱ +10 ث'],['s','🛡 درع'],['k','⏭ تخطّي']].forEach(([k,t])=>{const b=el('button','',t+' ('+pu[k]+')');b.disabled=!pu[k];
+  b.onclick=()=>{if(ans||!pu[k])return;pu[k]--;usedPU++;b.disabled=true;sfx.tick();if(k==='t'){TL+=10;tl+=10;b.textContent=t+' (0)'}else if(k==='s'){shield=1;b.textContent='🛡 مفعّل'}else{clearInterval(qt);i++;draw()}};tools.append(b)});
+ c.append(tools);
+}
+function timeUp(){if(ans)return;if(cur.ord)cur.why='الترتيب الصح: '+cur.ord.s.map((x,j)=>(j+1)+'. <code>'+x+'</code>').join(' ← ')+'. '+cur.ord.w;fin(false,null,'⏰ الوقت خلص!')}
+function fin(ok,x,pre){
+ if(ans)return;ans=true;clearInterval(qt);
+ cur.g.querySelectorAll('button').forEach(b=>{b.disabled=true;if(!cur.ord&&!cur.no&&String(b.dataset.v)===String(cur.ok))b.classList.add('right')});
+ if(x&&!ok)x.classList.add('wrong');
+ if(cur.after)cur.after();done(ok,pre);
+}
+const GR={sim:0,blk:0,root:1,ec:2,tf:3,mc:4,or:4,tk:4},GN=['الشبكة 🔌','الـ Root 👑','القنوات 🔗','المعلومات 🧠','الأوامر 💻','الزعيم 👹'];
+const gOf=x=>x.boss?5:GR[x.k];
+let badges=new Set(),wrong=0,extra=0,usedPU=0,pname='';
+const badge=b=>badges.has(b)?'':(badges.add(b),' · 🏅 '+b);
+function reinf(x){
+ if(extra>=3||x.rf)return;let n;
+ if(x.k==='root')n={k:'root',r:genRoot(rnd(3))};else if(x.k==='ec')n={k:'ec',e:pickEC()[0]};else if(x.k==='tf')n={k:'tf',t:TF[rnd(TF.length)]};else if(x.k==='mc')n={k:'mc',m:MC[rnd(MC.length)]};else return;
+ n.h=x.h+' · 🎯 تعزيز';n.rf=1;steps.splice(i+2,0,n);extra++;
+}
+function done(ok,pre){
+ total++;let msg;const x=steps[i];
+ if(ok){right++;streak++;const sp=Math.min(10,Math.ceil(tl/2));let pts=10+sp+Math.min(streak,5)*2;if(cur.boss)pts*=2;score+=pts;sfx.ok();cur.c.classList.add('pop');
+  msg='✅ صح! +'+pts+' نقطة'+(streak>1?' · 🔥 كومبو x'+streak:'')+' · ⚡ سرعة +'+sp;
+  if(TL-tl<5)msg+=badge('⚡ البرق');if(streak>=5)msg+=badge('🔥 كومبو 5');if(cur.no)msg+=badge('🎯 القفلة الصح من أول مرة');if(cur.boss)msg+=badge('👹 قاهر الزعيم');
+  if(streak%3===0)burst()}
+ else{wrong++;reinf(x);streak=0;sfx.no();cur.c.classList.add('shake');msg=(pre||'❌ لسه')+(shield?' · 🛡 الدرع حماك من خسارة قلب':' · 💔 خسرت قلب');if(shield)shield=0;else hearts--}
+ over=hearts<=0;const nx=steps[i+1];
+ if(!over&&(!nx||gOf(nx)!==gOf(x))){msg+=' · 🎉 اتصلّح: '+GN[gOf(x)];burst()}
+ hud();
+ const t=cur.c.querySelector('.tools');if(t)t.remove();
+ const f=el('div','fb '+(ok?'ok':'no'),'<b>'+msg+'</b><p>'+cur.why+'</p>');
+ const n=el('button','pri',over?'💥 شوف النتيجة':i===steps.length-1?'شوف النتيجة 🏁':'التالي ◀');n.onclick=()=>{i++;draw()};f.append(n);cur.c.append(f);
+}
+function mk(c,btns,ok,why,cls,after){
+ const g=el('div',cls||'opts');c.append(g);cur={g,ok,why,c,after};
+ btns.forEach(b=>{const x=el('button',b.c||'',b.h);x.dataset.v=b.v;x.onclick=()=>fin(String(b.v)===String(ok),x);g.append(x)});
+}
+function root(c,s){
+ const[q,sw]=s.r;c.append(el('div','q',q));
+ const best=[...sw].sort((a,b)=>a[1]-b[1]||(a[2].toUpperCase()<b[2].toUpperCase()?-1:1))[0],tie=sw.filter(x=>x[1]===best[1]).length>1;
+ mk(c,sw.map((x,k)=>({h:'<b>'+x[0]+'</b><small>Priority: '+x[1]+'</small><small>MAC: '+x[2]+'</small>',v:k,c:'sw'})),sw.indexOf(best),
+  best[0]+' هو الـ Root. '+(tie?'الـ Priority متساوي ('+best[1]+') فاتقارن الـ MAC والأقل بيكسب.':'الـ Priority بتاعه الأقل ('+best[1]+') وبيتقارن الأول قبل الـ MAC.'),'sws');
+}
+function ecSvg(a,b,res){
+ const T=(x,y,s,f,z)=>'<text x="'+x+'" y="'+y+'" style="fill:var('+f+');font-size:'+z+'px;font-weight:700;text-anchor:middle;direction:ltr">'+s+'</text>';
+ let s='<svg viewBox="0 0 360 170">';
+ [[50,'SW1',a],[310,'SW2',b]].forEach(([x,n,m])=>{s+='<rect class="nd" x="'+(x-40)+'" y="55" width="80" height="70" rx="10"/>'+T(x,95,n,'--ink',16)+T(x,32,m,'--acc',13)+(res===null?'':T(x,46,'('+PR[m]+')','--muted',11))});
+ for(let k=0;k<3;k++){const y=72+k*18,bad=res===false&&k>0;
+  s+='<line x1="90" y1="'+y+'" x2="270" y2="'+y+'" style="stroke:var('+(bad?'--bad':res===null?'--ink':'--ok')+');stroke-width:3;stroke-linecap:round'+(bad?';stroke-dasharray:8 6':'')+'"/>'+T(118,y-3,'e0/'+k,'--muted',9)+T(242,y-3,'e0/'+k,'--muted',9);
+  if(bad)s+=T(180,y-3,'Blocking','--bad',10)}
+ [100,260].forEach(x=>s+='<ellipse cx="'+x+'" cy="90" rx="12" ry="34" style="fill:none;stroke:var('+(res===null?'--acc':res?'--ok':'--bad')+');stroke-width:2.5'+(res?'':';stroke-dasharray:5 4')+'"/>');
+ if(res)s+=T(180,50,'Port-channel 1','--ok',12);
+ s+='</svg>';
+ return s+'<div class="stat">'+(res===null?'3 كابلات بين السويتشين':res?'✅ اتكوّنت EtherChannel: الـ 3 كابلات بقوا كابل افتراضي واحد':'❌ مفيش قناة: STP بيقفل كابلين ويسيب كابل واحد شغال')+'</div>';
+}
+function ecq(c,s){
+ const[a,b]=s.e,[ok,why]=ec(a,b),pic=el('div','',ecSvg(a,b,null));
+ c.append(el('div','q','السويتش 1 على <code>'+a+'</code> والسويتش 2 على <code>'+b+'</code>. هل القناة هتتكوّن؟'));c.append(pic);
+ mk(c,[{h:'✅ هتتكوّن',v:1},{h:'❌ مش هتتكوّن',v:0}],ok?1:0,why,'opts two',()=>pic.innerHTML=ecSvg(a,b,ok));
+}
+function tf(c,s){const[q,a,why]=s.t;c.append(el('div','q',q));mk(c,[{h:'✅ صح',v:1},{h:'❌ غلط',v:0}],a,why,'opts two')}
+function mc(c,s){const[q,o,a,why]=s.m;c.append(el('div','q',q));mk(c,shuf(o.map((t,k)=>({h:t,v:k}))),a,why)}
+function ord(c,s){
+ const o=s.o;c.append(el('div','q',o.t+' <small>(اضغط الخطوات بالترتيب · غلطة واحدة مسموحة)</small>'));
+ const list=el('div','olist'),pool=el('div','opts');c.append(list,pool);cur={g:pool,ok:'',why:o.w,c,ord:o};let k=0,bad=0;
+ shuf(o.s.map((x,j)=>[x,j])).forEach(([x,j])=>{const b=el('button','','<code>'+x+'</code>');
+  b.onclick=()=>{if(ans)return;if(j===k){k++;b.disabled=true;b.classList.add('right');sfx.tick();list.append(el('div','step',k+'. <code>'+x+'</code>'));if(k===o.s.length)fin(bad<=1,null,bad<=1?'':'❌ غلطات كتير')}
+   else{bad++;sfx.no();b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400)}};pool.append(b)});
+}
+function sim(c){
+ c.append(el('div','q','شغّل وقفّل الـ STP وشوف اللي بيحصل'));
+ const box=el('div');c.append(box);let stp=false,cut=false,n=1;
+ const P={1:[180,40],2:[60,190],3:[300,190]},L=[[1,2],[1,3],[2,3]];
+ function paint(){
+  const st=l=>{const k=l.join('');if(!stp)return'storm';if(k==='12'&&cut)return'cut';if(k==='23'&&!cut)return'bl';return'ok'};
+  let s='<svg viewBox="0 0 360 240">';
+  L.forEach(l=>{const[a,b]=[P[l[0]],P[l[1]]],t=st(l);s+='<line class="lk '+t+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>';
+   if(t==='bl')s+='<text class="lt" x="'+(a[0]+b[0])/2+'" y="'+((a[1]+b[1])/2-8)+'">✖ Blocking</text>';
+   if(t==='cut')s+='<text class="lt" x="'+(a[0]+b[0])/2+'" y="'+((a[1]+b[1])/2-8)+'">✂ مقطوع</text>'});
+  [1,2,3].forEach(k=>s+='<rect class="nd" x="'+(P[k][0]-34)+'" y="'+(P[k][1]-18)+'" width="68" height="36" rx="10"/><text class="nt" x="'+P[k][0]+'" y="'+(P[k][1]+5)+'">SW'+k+'</text>');
+  s+='</svg>';
+  const pct=stp?0:Math.min(100,Math.log2(n)/16*100);
+  const msg=!stp?'💥 عاصفة بث! الفريمات بتلف للأبد':cut?'🔁 STP فتح البورت الاحتياطي والشبكة كملت':'✅ مفيش Loop: بورت واحد في Blocking';
+  box.innerHTML=s+'<div class="stat">'+msg+'</div><div class="stat">فريمات بتلف في الشبكة: '+n.toLocaleString('en-US')+'</div><div class="bar"><i style="width:'+pct+'%;background:var(--bad)"></i></div>';
+  const r=el('div','row'),b1=el('button','','STP: '+(stp?'شغّال ✅':'مقفول ❌')+' (اضغط للتبديل)');
+  b1.onclick=()=>{stp=!stp;cut=false;n=1;paint()};r.append(b1);
+  if(stp&&!cut){const b2=el('button','','✂ اقطع الكابل SW1-SW2');b2.onclick=()=>{cut=true;paint()};r.append(b2)}
+  box.append(r);
+ }
+ paint();timer=setInterval(()=>{if(!stp&&n<65536){n*=2;paint()}},700);
+ const go=el('button','pri','ابدأ التحدي ◀');go.style.marginTop='10px';go.style.width='100%';go.onclick=()=>{i++;draw()};c.append(go);
+}
+function blk(c,s){
+ const pr=shuf([4097,8193,12289,32769,32769,36865]).slice(0,3),sw=pr.map((p,k)=>({n:'SW'+(k+1),p,m:mac()}));
+ const rt=sw.indexOf([...sw].sort((a,b)=>a.p-b.p||(a.m<b.m?-1:1))[0]),L=[[0,1],[0,2],[1,2]],stp=L.findIndex(l=>!l.includes(rt));
+ const P=[[190,58],[85,190],[295,190],[52,58],[85,250],[295,250]];
+ let B=new Set(),busy=false,scored=false;
+ c.append(el('div','q','السويتشات دي بتكوّن Loop. اضغط على اللينك اللي STP هيقفله وابعت الـ Broadcast من PC1. <small>تقدر تقفل أكتر من لينك وتشوف النتيجة، لكن أول إرسال هو إجابتك.</small>'));
+ const box=el('div'),info=el('div','stat',''),g=el('div','row'),bs=el('button','pri','▶ ابعت Broadcast من PC1'),br=el('button','','↺ صفّر اللينكات');
+ c.append(box,info,g);g.append(bs,br);
+ const nm=k=>sw[k].n;
+ cur={g,ok:'',no:1,boss:s.boss,c,after:()=>{bs.disabled=br.disabled=false},
+  why:'الـ Root هو '+nm(rt)+' (أقل Priority، ولو اتساووا أقل MAC). الـ Root بيسيب كل بورتاته Forwarding، فاللينك اللي بين السويتشين التانيين ('+nm(L[stp][0])+' و '+nm(L[stp][1])+') هو اللي STP بيقفله: البورت بيتقفل عند السويتش الأعلى Bridge ID.'};
+ const paint=()=>{
+  let h='<svg viewBox="0 0 380 275">';
+  [0,1,2].forEach(k=>h+=`<line x1="${P[k][0]}" y1="${P[k][1]}" x2="${P[k+3][0]}" y2="${P[k+3][1]}" style="stroke:var(--muted);stroke-width:2"/>`);
+  L.forEach((l,j)=>{const a=P[l[0]],b=P[l[1]],bl=B.has(j),co=`x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"`;
+   h+=`<line class="lk ${bl?'bl':'ok'}" ${co}/>`;
+   if(bl)h+=`<text class="lt" x="${(a[0]+b[0])/2}" y="${(a[1]+b[1])/2-8}">✖ Blocking</text>`;
+   h+=`<line data-j="${j}" ${co} style="stroke:transparent;stroke-width:28;cursor:pointer"/>`});
+  sw.forEach((x,k)=>{const X=P[k][0],Y=P[k][1],sm='fill:var(--muted);font-size:9.5px;text-anchor:middle;direction:ltr';
+   h+=`<rect class="nd" x="${X-48}" y="${Y-24}" width="96" height="48" rx="10"/><text class="nt" x="${X}" y="${Y-8}">${x.n}</text><text style="${sm}" x="${X}" y="${Y+5}">Pri: ${x.p}</text><text style="${sm}" x="${X}" y="${Y+17}">${x.m}</text>`});
+  [3,4,5].forEach(k=>h+=`<rect class="nd" x="${P[k][0]-24}" y="${P[k][1]-13}" width="48" height="26" rx="6"/><text class="nt" style="font-size:12px" x="${P[k][0]}" y="${P[k][1]+4}">PC${k-2}</text>`);
+  box.innerHTML=h+'<g id="fl"></g></svg>';
+  box.querySelectorAll('[data-j]').forEach(e=>e.onclick=()=>{if(busy)return;const j=+e.dataset.j;B.has(j)?B.delete(j):B.add(j);sfx.tick();paint()});
+ };
+ const adj=v=>[v+3,...L.filter((l,j)=>l.includes(v)&&!B.has(j)).map(l=>l[0]===v?l[1]:l[0])];
+ const anim=(fr,cb)=>{const gl=box.querySelector('#fl');if(!gl)return;
+  const els=fr.map(()=>{const e=document.createElementNS('http://www.w3.org/2000/svg','circle');e.setAttribute('r',6);e.setAttribute('style','fill:var(--warn);stroke:var(--ink);stroke-width:1');gl.append(e);return e});
+  const t0=performance.now();
+  (function f(t){const p=Math.min(1,(t-t0)/650);fr.forEach((x,k)=>{const a=P[x[0]],b=P[x[1]],o=(k%3-1)*4;els[k].setAttribute('cx',a[0]+(b[0]-a[0])*p+o);els[k].setAttribute('cy',a[1]+(b[1]-a[1])*p+o)});
+   if(p<1)requestAnimationFrame(f);else{els.forEach(e=>e.remove());cb()}})(t0);
+ };
+ function finish(storm,dl,sent){
+  busy=false;const miss=[4,5].filter(k=>!dl.has(k)).map(k=>'PC'+(k-2));let ok=false,m,pre;
+  if(storm){m='💥 عاصفة بث! الفريمات لسه بتلف بعد 6 جولات ('+sent+' فريم) لأن فيه Loop.';pre='💥 عاصفة بث!'}
+  else if(miss.length){m='🔌 '+miss.join(' و ')+' ما وصلهوش الفريم: قفلت لينكات زيادة عن اللازم.';pre='🔌 جهاز اتفصل عن الشبكة'}
+  else if(B.size===1&&B.has(stp)){ok=true;m='🏆 الفريم وصل لكل الأجهزة مرة واحدة من غير Loop، وده بالظبط اللي STP بيعمله!'}
+  else{m='⚠ الفريم وصل لكل الأجهزة من غير Loop، لكن ده مش اللينك اللي STP بيقفله.';pre='⚠ شغال بس مش اختيار STP'}
+  info.textContent=m;if(!scored){scored=true;fin(ok,null,pre)}bs.disabled=br.disabled=false;
+ }
+ bs.onclick=()=>{
+  if(busy)return;busy=true;bs.disabled=br.disabled=true;paint();info.textContent='';
+  const my=cur,dl=new Set();let fr=[[3,0]],round=0,sent=1;
+  const step=()=>anim(fr,()=>{
+   if(cur!==my)return;
+   const nf=[];fr.forEach(([u,v])=>{if(v>=3){dl.add(v);return}adj(v).forEach(w=>{if(w!==u)nf.push([v,w])})});
+   round++;sent+=nf.length;info.textContent='الجولة '+round+': '+nf.length+' فريم · الإجمالي '+sent;
+   if(nf.length&&round<6){fr=nf;step()}else finish(nf.length>0,dl,sent);
+  });
+  step();
+ };
+ br.onclick=()=>{if(busy)return;B.clear();info.textContent='';paint()};
+ paint();
+}
+const TK=[
+ {t:'📩 المدير: القناة EtherChannel بين SW1 وSW2 مش شغالة بكامل كفاءتها. دوس على البورت اللي فيه المشكلة.',l:['Po1(SU)   Protocol: PAgP','Et0/0(P)   100M  full','Et0/1(I)   10M   half','Et0/2(P)   100M  full'],a:2,w:'Et0/1 سرعته والـ duplex بتوعه مختلفين عن الباقي، فاتشال من القناة (flag I). كل بورتات القناة لازم تتطابق في الـ speed والـ duplex.'},
+ {t:'📩 المدير: على SW3 كابل e1/2 سليم بس مفيش بيانات بتعدي منه. دوس على سطر السبب.',l:['Et0/0   Desg  FWD  100','Et1/2   Altn  BLK  100','Et1/3   Root  FWD  100'],a:1,w:'الدور Altn والحالة BLK يعني بورت احتياطي في Blocking بسبب STP. ده سلوك طبيعي مش عطل، وبيشتغل لو المسار الأساسي وقع.'},
+ {t:'📩 المدير: أجهزة VLAN 20 مش بتوصل لباقي الـ VLANs على سويتش Layer 3. دوس على السطر المشكلة.',l:['interface vlan 10','ip address 192.168.1.1 255.255.255.0','no shut','interface vlan 20','ip address 172.16.0.1 255.255.0.0','shutdown'],a:5,w:'الـ SVI بتاع VLAN 20 معمول له shutdown فمش هيبقى up. لازم no shut عشان الـ routing يشتغل.'},
+ {t:'📩 المدير: Router on a Stick مش بيروت لـ VLAN 10. دوس على السطر اللي فيه المشكلة.',l:['interface g1/0.10','ip address 192.168.1.1 255.255.255.0','interface g1/0.20','encapsulation dot1q 20','ip address 172.16.0.1 255.255.0.0'],a:0,w:'الـ Subinterface بتاع VLAN 10 ناقصه encapsulation dot1q 10 قبل الـ IP، فالراوتر مش عارف يربطه بالـ VLAN.'}];
+function tk(c,s){const t=s.t;c.append(el('div','tkt',t.t));mk(c,t.l.map((x,k)=>({h:'<code>'+x+'</code>',v:k,c:'ln'})),t.a,t.w)}
+const to=p=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(0),8000))]);
+async function board(m,me){
+ let db=null;try{db=await to(claude.use('db'))}catch(e){}
+ if(!db)return;
+ const card=el('div','card'),lb=el('div','lb');card.append(el('div','q','🏆 لوحة الشرف'),lb);m.append(card);
+ try{await to(db.doc('scores/p'+Date.now().toString(36)+rnd(1296).toString(36)).set({name:me.name,score:me.score,rank:me.rank,t:Date.now()}))}catch(e){lb.textContent='لوحة الترتيب محتاجة إن صاحب الصفحة يدّي الطلاب صلاحية مساهم.'}
+ try{const q=await to(db.collection('scores').orderBy('score','desc').limit(10).get());lb.textContent='';
+  q.docs.forEach((d,k)=>{const v=d.data()||{},r=document.createElement('div');r.textContent=(k+1)+'. '+String(v.name||'').slice(0,20)+' — '+(+v.score||0)+' ⭐ '+String(v.rank||'').slice(0,24);if(v.name===me.name&&v.score===me.score)r.className='me';lb.append(r)});
+  if(!q.docs.length)lb.textContent='كن أول واحد في اللوحة!'}catch(e){}
+}
+function end(m){
+ clearInterval(qt);clearInterval(timer);
+ const p=Math.round(right/Math.max(total,1)*100),dead=hearts<=0,stars=dead?0:p>=90?3:p>=70?2:p>=40?1:0,rk=score>=480?'خبير شبكات 🏆':score>=320?'مهندس شبكات 🛠️':score>=140?'فني شبكات 🔧':'متدرب 🎓';
+ if(!dead&&total&&!wrong)badges.add('💎 من غير غلطة');if(!dead&&!usedPU)badges.add('🧠 من غير قوى خاصة');
+ const c=el('div','card');
+ c.innerHTML='<div class="big">'+(dead?'💥':'⭐'.repeat(stars)+'☆'.repeat(3-stars))+'</div><div class="q" style="text-align:center">'+(dead?'الشبكة وقعت! راجع الشرح وحاول تاني':stars===3?'المدرسة بخير بفضلك! 🏫':'شغل كويس! راجع اللي غلطت فيه')+'</div><div class="stat" id="who"></div><div class="stat">لقبك: '+rk+'</div><div class="stat">النقاط: '+score+' · الصح: '+right+' من '+total+' ('+p+'%)</div><div class="stat" id="bd"></div>';
+ c.querySelector('#who').textContent='👤 '+pname;c.querySelector('#bd').textContent=badges.size?'🏅 '+[...badges].join(' · '):'';
+ if(stars===3){burst();sfx.win()}
+ const b=el('button','pri','العب تاني 🔄 (أسئلة جديدة)');b.style.width='100%';b.onclick=start;c.append(b);m.append(c);
+ board(m,{name:pname,score,rank:rk});
+}
+function start(){build();i=0;score=0;streak=0;right=0;total=0;hearts=3;shield=0;pu={t:1,s:1,k:1};over=false;badges=new Set();wrong=0;extra=0;usedPU=0;draw()}
+function intro(){
+ $('#mu').onclick=()=>{mute=!mute;$('#mu').textContent=mute?'🔇':'🔊'};hud();
+ const c=el('div','card');
+ c.innerHTML='<div class="big">🏫💥</div><div class="q" style="text-align:center">شبكة المدرسة وقعت! لازم تصلّحها</div><ul><li>معاك <b>3 قلوب ❤️</b> وكل غلطة بتخسّرك قلب</li><li>كل سؤال له <b>وقت ⏱</b>، وكل ما جاوبت أسرع نقاطك أكتر</li><li>كل مرحلة بتخلّصها <b>بتصلّح جزء</b> من شبكة المدرسة، وفي الآخر <b>Boss 👹</b></li><li>اجمع <b>🏅 الشارات</b> وادخل <b>لوحة الشرف 🏆</b></li></ul><b>اكتب اسمك الأول:</b><input maxlength="20" placeholder="اسمك هنا" autocomplete="off">';
+ const inp=c.querySelector('input'),b=el('button','pri','ابدأ المهمة 🚀');b.style.width='100%';b.disabled=true;
+ const go=()=>{if(b.disabled)return;pname=inp.value.trim().slice(0,20);start()};
+ inp.oninput=()=>{b.disabled=inp.value.trim().length<2};inp.onkeydown=e=>{if(e.key==='Enter')go()};b.onclick=go;
+ c.append(b);$('#main').append(c);
+}
+intro();
+</script>
+</body>
+</html>
